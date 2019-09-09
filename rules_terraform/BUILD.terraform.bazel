@@ -1,0 +1,15 @@
+load("@io_bazel_rules_terraform//rules_terraform:terraform.bzl", "declare_terraform_toolchains")
+
+package(default_visibility = ["//visibility:public"])
+
+declare_terraform_toolchains(
+    version = "{version}",
+)
+
+filegroup(
+    name = "{name}",
+    srcs = ["terraform/terraform{exe}"],
+    visibility = ["//visibility:public"]
+)
+
+

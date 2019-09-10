@@ -15,7 +15,7 @@ http_archive(
 )
 
 
-load("@io_bazel_rules_terraform//rules_terraform:terraform.bzl", "terraform_register_toolchains")
+load("@io_bazel_rules_terraform//terraform:terraform.bzl", "terraform_register_toolchains")
 
 terraform_register_toolchains("0.12.8")
 ```
@@ -23,7 +23,7 @@ terraform_register_toolchains("0.12.8")
 Import the rules you want to use in your build file:
 
 ```
-load("@io_bazel_rules_terraform//rules_terraform:terraform.bzl", "terraform_plan")
+load("@io_bazel_rules_terraform//terraform:terraform.bzl", "terraform_plan")
 
 terraform_plan(
     name = "plan",

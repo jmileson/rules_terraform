@@ -1,5 +1,5 @@
 filegroup(
-    name = "all_rules",
+    name = "all_files",
     srcs = glob(["**/*.bzl"]),
     visibility = ["//visibility:public"],
 )

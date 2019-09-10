@@ -125,7 +125,7 @@ def _terraform_build_file(ctx, platform, version):
     ctx.file("ROOT")
     ctx.template(
         "BUILD.bazel",
-        Label("@io_bazel_rules_terraform//rules_terraform:BUILD.terraform.bazel"),
+        Label("@io_bazel_rules_terraform//terraform:BUILD.terraform.bazel"),
         executable = False,
         substitutions = {
             "{name}": "terraform_executable",

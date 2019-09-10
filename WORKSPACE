@@ -17,6 +17,6 @@ http_archive(
 workspace(name = "io_bazel_rules_terraform")
 
 # TERRAFORM
-load("@io_bazel_rules_terraform//rules_terraform:terraform.bzl", "terraform_register_toolchains")
+load("@io_bazel_rules_terraform//terraform:terraform.bzl", "terraform_register_toolchains")
 
 terraform_register_toolchains("0.12.8")

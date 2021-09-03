@@ -1,3 +1,7 @@
+workspace(name = "io_bazel_rules_terraform")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
 # BUILDIFIER
 http_archive(
     name = "com_google_protobuf",
@@ -14,7 +18,6 @@ http_archive(
     strip_prefix = "buildtools-master",
     url = "https://github.com/bazelbuild/buildtools/archive/master.zip",
 )
-workspace(name = "io_bazel_rules_terraform")
 
 # TERRAFORM
 load("@io_bazel_rules_terraform//terraform:terraform.bzl", "terraform_register_toolchains")

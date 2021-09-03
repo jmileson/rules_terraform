@@ -4,3 +4,4 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+exports_files(["terraform_plan.sh.tpl"])

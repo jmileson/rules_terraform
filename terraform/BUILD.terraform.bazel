@@ -9,7 +9,5 @@ declare_terraform_toolchains(
 filegroup(
     name = "{name}",
     srcs = ["terraform/terraform{exe}"],
-    visibility = ["//visibility:public"]
+    visibility = ["//visibility:public"],
 )
-
-

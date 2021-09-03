@@ -1,29 +1,31 @@
+""""""
+
 load("//terraform:provider.bzl", "TerraformInfo")
 
 toolchains = {
-    "macos_amd64": {
-        "os": "darwin",
+    "linux_amd64": {
         "arch": "amd64",
-        "sha": "2c2d9d435712f4be989738b7899917ced7c12ab05b8ddc14359ed4ddb1bc9375",
         "exec_compatible_with": [
-            "@platforms//os:osx",
+            "@platforms//os:linux",
             "@platforms//cpu:x86_64",
         ],
+        "os": "linux",
+        "sha": "43806e68f7af396449dd4577c6e5cb63c6dc4a253ae233e1dddc46cf423d808b",
         "target_compatible_with": [
-            "@platforms//os:osx",
+            "@platforms//os:linux",
             "@platforms//cpu:x86_64",
         ],
     },
-    "linux_amd64": {
-        "os": "linux",
+    "macos_amd64": {
         "arch": "amd64",
-        "sha": "43806e68f7af396449dd4577c6e5cb63c6dc4a253ae233e1dddc46cf423d808b",
         "exec_compatible_with": [
-            "@platforms//os:linux",
+            "@platforms//os:osx",
             "@platforms//cpu:x86_64",
         ],
+        "os": "darwin",
+        "sha": "2c2d9d435712f4be989738b7899917ced7c12ab05b8ddc14359ed4ddb1bc9375",
         "target_compatible_with": [
-            "@platforms//os:linux",
+            "@platforms//os:osx",
             "@platforms//cpu:x86_64",
         ],
     },
@@ -51,24 +53,24 @@ terraform_toolchain = rule(
 def _format_url(version, os, arch):
     return url_template.format(version = version, os = os, arch = arch)
 
-def declare_terraform_toolchains(version):
-    for key, info in toolchains.items():
-        url = _format_url(version, info["os"], info["arch"])
-        name = "terraform_{}".format(key)
-        toolchain_name = "{}_toolchain".format(name)
-
-        terraform_toolchain(
-            name = name,
-            url = url,
-            sha = info["sha"],
-        )
-        native.toolchain(
-            name = toolchain_name,
-            exec_compatible_with = info["exec_compatible_with"],
-            target_compatible_with = info["target_compatible_with"],
-            toolchain = name,
-            toolchain_type = "@io_bazel_rules_terraform//:toolchain_type",
-        )
+# def declare_terraform_toolchains(version):
+#     for key, info in toolchains.items():
+#         url = _format_url(version, info["os"], info["arch"])
+#         name = "terraform_{}".format(key)
+#         toolchain_name = "{}_toolchain".format(name)
+#
+#         terraform_toolchain(
+#             name = name,
+#             url = url,
+#             sha = info["sha"],
+#         )
+#         native.toolchain(
+#             name = toolchain_name,
+#             exec_compatible_with = info["exec_compatible_with"],
+#             target_compatible_with = info["target_compatible_with"],
+#             toolchain = name,
+#             toolchain_type = "@io_bazel_rules_terraform//:toolchain_type",
+#         )
 
 def _detect_platform_arch(ctx):
     if ctx.os.name == "linux":
@@ -98,8 +100,8 @@ def _terraform_build_file(ctx, platform, version):
         Label("@io_bazel_rules_terraform//terraform:BUILD.terraform.bazel"),
         executable = False,
         substitutions = {
-            "{name}": "terraform_executable",
             "{exe}": ".exe" if platform == "windows" else "",
+            "{name}": "terraform_executable",
             "{version}": version,
         },
     )

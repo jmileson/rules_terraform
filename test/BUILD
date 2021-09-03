@@ -1,4 +1,4 @@
-load("@io_bazel_rules_terraform//terraform:terraform.bzl", "terraform_plan", "terraform_version", "terraform_init")
+load("@io_bazel_rules_terraform//terraform:terraform.bzl", "terraform_init", "terraform_plan", "terraform_version")
 
 SRCS = glob(["**/*.tf"])
 
@@ -12,5 +12,4 @@ terraform_plan(
     srcs = SRCS,
 )
 
-
-terraform_version(name="version")
+terraform_version(name = "version")

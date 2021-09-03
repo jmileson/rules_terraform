@@ -1,3 +1,5 @@
+""""""
+
 def _terraform_apply(ctx):
     deps = depset(ctx.files.srcs)
     ctx.actions.run(

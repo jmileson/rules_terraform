@@ -1,0 +1,26 @@
+load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
+
+# TODO remove this
+filegroup(
+    name = "all_files",
+    testonly = True,
+    srcs = [
+        "BUILD",
+        "WORKSPACE",
+        "//terraform:all_files",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+buildifier(
+    name = "buildifier_lint",
+    lint_mode = "warn",
+    lint_warnings = ["all"],
+    mode = "check",
+)
+
+buildifier(
+    name = "buildifier",
+    lint_mode = "fix",
+    lint_warnings = ["all"],
+)

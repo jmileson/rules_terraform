@@ -1,3 +1,4 @@
+load("//terraform:provider.bzl", "TerraformInfo")
 
 toolchains = {
     "macos_amd64": {
@@ -13,19 +14,6 @@ toolchains = {
             "@platforms//cpu:x86_64",
         ],
     },
-    "linux_i386": {
-        "os": "linux",
-        "arch": "386",
-        "sha": "93ac24326034eb269d68f2face60bcec5d3af90fc7dfc68b058c66dc5c139e25",
-        "exec_compatible_with": [
-            "@platforms//os:linux",
-            "@platforms//cpu:i386",
-        ],
-        "target_compatible_with": [
-            "@platforms//os:linux",
-            "@platforms//cpu:i386",
-        ],
-    },
     "linux_amd64": {
         "os": "linux",
         "arch": "amd64",
@@ -39,27 +27,9 @@ toolchains = {
             "@platforms//cpu:x86_64",
         ],
     },
-    "windows_amd64": {
-        "os": "windows",
-        "arch": "amd64",
-        "sha": "3d0c41c514841ef38645acdefe3f70f8376e7d8de55828c50087083bd34e9c20",
-        "exec_compatible_with": [
-            "@platforms//os:windows",
-            "@platforms//cpu:x86_64",
-        ],
-        "target_compatible_with": [
-            "@platforms//os:windows",
-            "@platforms//cpu:x86_64",
-        ],
-    },
 }
 
 url_template = "https://releases.hashicorp.com/terraform/{version}/terraform_{version}_{os}_{arch}.zip"
-
-TerraformInfo = provider(
-    doc = "Information about how to invoke Terraform.",
-    fields = ["sha", "url"],
-)
 
 def _terraform_toolchain_impl(ctx):
     toolchain_info = platform_common.ToolchainInfo(
@@ -77,13 +47,13 @@ terraform_toolchain = rule(
         "url": attr.string(),
     },
 )
+
 def _format_url(version, os, arch):
     return url_template.format(version = version, os = os, arch = arch)
 
-
 def declare_terraform_toolchains(version):
     for key, info in toolchains.items():
-        url =_format_url(version, info["os"], info["arch"])
+        url = _format_url(version, info["os"], info["arch"])
         name = "terraform_{}".format(key)
         toolchain_name = "{}_toolchain".format(name)
 
@@ -130,7 +100,7 @@ def _terraform_build_file(ctx, platform, version):
         substitutions = {
             "{name}": "terraform_executable",
             "{exe}": ".exe" if platform == "windows" else "",
-            "{version}": version
+            "{version}": version,
         },
     )
 
@@ -139,7 +109,7 @@ def _remote_terraform(ctx, url, sha):
         url = url,
         sha256 = sha,
         type = "zip",
-        output = "terraform"
+        output = "terraform",
     )
 
 def _terraform_register_toolchains_impl(ctx):
@@ -160,59 +130,8 @@ _terraform_register_toolchains = repository_rule(
 )
 
 def terraform_register_toolchains(version = None):
+    # TODO version is required
     _terraform_register_toolchains(
         name = "register_terraform_toolchains",
         version = version,
     )
-
-def _terraform_plan(ctx):
-    deps = depset(ctx.files.srcs)
-    ctx.actions.run(
-        executable = ctx.executable._exec,
-        inputs = deps.to_list(),
-        outputs = [ctx.outputs.out],
-        mnemonic = "TerraformInitialize",
-        arguments = [
-            "plan",
-            "-out={0}".format(ctx.outputs.out.path),
-            deps.to_list()[0].dirname,
-        ],
-    )
-
-terraform_plan = rule(
-    implementation = _terraform_plan,
-    attrs = {
-        "srcs": attr.label_list(
-            mandatory = True,
-            allow_files = True,
-        ),
-        "_exec": attr.label(
-            default = Label("@register_terraform_toolchains//:terraform_executable"),
-            allow_files = True,
-            executable = True,
-            cfg = "host",
-        ),
-    },
-    outputs = {"out": "%{name}.out"},
-)
-
-def _terraform_version(ctx):
-    output = ctx.actions.declare_file("version.out")
-    ctx.actions.run(
-            executable = ctx.executable._exec,
-            arguments = [
-                    "version",
-                    ],
-            outputs = [output],
-            )
-
-terraform_version = rule(
-        implementation = _terraform_version,
-        attrs = {
-                 "_exec": attr.label(
-            default = Label("@register_terraform_toolchains//:terraform_executable"),
-            allow_files = True,
-            executable = True,
-            cfg = "host"),
-        },
- )

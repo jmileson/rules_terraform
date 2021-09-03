@@ -1,3 +1,4 @@
+# TODO remove this
 filegroup(
     name = "all_files",
     testonly = True,
@@ -7,4 +8,10 @@ filegroup(
         "//terraform:all_files",
     ],
     visibility = ["//visibility:public"],
+)
+
+load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
+
+buildifier(
+    name = "buildifier",
 )

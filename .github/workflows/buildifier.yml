@@ -5,13 +5,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
+        id: checkout
         uses: actions/checkout@v2
       - name: Setup Bazelisk
+        id: setup
         uses: bazelbuild/setup-bazelisk@v1.0.1
       - name: Mount bazel cache
+        id: cache
         uses: actions/cache@v1
         with:
           path: "~/.cache/bazel"
           key: bazel
       - name: Run Buildifier
-        run: bazel run //:buildifier -- --lint=warn --warnings=all -r .
+        id: run
+        run: bazel run //:buildifier_lint
+        continue-on-error: true
+      - name: Check for failure
+        id: check
+        if: steps.run.outcome != 'success'
+        run: echo 'Bazel lint failed, run `bazel run //:buildifier`' && exit 1

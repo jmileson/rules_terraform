@@ -1,3 +1,5 @@
+load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
+
 # TODO remove this
 filegroup(
     name = "all_files",
@@ -9,8 +11,6 @@ filegroup(
     ],
     visibility = ["//visibility:public"],
 )
-
-load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 
 buildifier(
     name = "buildifier",

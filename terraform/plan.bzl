@@ -9,9 +9,9 @@ def _terraform_plan_impl(ctx):
         template = Label("//terraform:terraform_plan.sh.tpl"),
         output = exe,
         substitutions = {
-            "%{out}": ctx.outputs.out.path,
             "%{args}": deps.to_list()[0].dirname,
             "%{executable}": _get_runfile_path(ctx, ctx.executable._exec),
+            "%{out}": ctx.outputs.out.path,
         },
         is_executable = True,
     )

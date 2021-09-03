@@ -1,3 +1,5 @@
+""""""
+
 load("//terraform:provider.bzl", "TerraformInfo")
 
 toolchains = {
@@ -51,24 +53,24 @@ terraform_toolchain = rule(
 def _format_url(version, os, arch):
     return url_template.format(version = version, os = os, arch = arch)
 
-def declare_terraform_toolchains(version):
-    for key, info in toolchains.items():
-        url = _format_url(version, info["os"], info["arch"])
-        name = "terraform_{}".format(key)
-        toolchain_name = "{}_toolchain".format(name)
-
-        terraform_toolchain(
-            name = name,
-            url = url,
-            sha = info["sha"],
-        )
-        native.toolchain(
-            name = toolchain_name,
-            exec_compatible_with = info["exec_compatible_with"],
-            target_compatible_with = info["target_compatible_with"],
-            toolchain = name,
-            toolchain_type = "@io_bazel_rules_terraform//:toolchain_type",
-        )
+# def declare_terraform_toolchains(version):
+#     for key, info in toolchains.items():
+#         url = _format_url(version, info["os"], info["arch"])
+#         name = "terraform_{}".format(key)
+#         toolchain_name = "{}_toolchain".format(name)
+#
+#         terraform_toolchain(
+#             name = name,
+#             url = url,
+#             sha = info["sha"],
+#         )
+#         native.toolchain(
+#             name = toolchain_name,
+#             exec_compatible_with = info["exec_compatible_with"],
+#             target_compatible_with = info["target_compatible_with"],
+#             toolchain = name,
+#             toolchain_type = "@io_bazel_rules_terraform//:toolchain_type",
+#         )
 
 def _detect_platform_arch(ctx):
     if ctx.os.name == "linux":

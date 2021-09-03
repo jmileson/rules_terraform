@@ -1,3 +1,5 @@
+""""""
+
 load("//terraform:provider.bzl", "TerraformPlanInfo")
 
 def _terraform_plan_impl(ctx):

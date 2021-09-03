@@ -1,16 +1,38 @@
 workspace(name = "io_bazel_rules_terraform")
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+# Variables
+# SKYLIB
+skylib_version = "1.0.3"
 
-# BUILDIFIER
+skylib_sha = "1c531376ac7e5a180e0237938a2536de0c54d93f5c278634818e0efc952dd56c"
+
+# RULES_GO
 rules_go_version = "0.24.5"
 
 rules_go_sha = "d1ffd055969c8f8d431e2d439813e42326961d0942bdf734d2c95dc30c369566"
 
+# GAZELLE
 gazelle_version = "0.22.2"
 
 gazelle_sha = "b85f48fa105c4403326e9525ad2b2cc437babaa6e15a3fc0b1dbab0ab064bc7c"
 
+# SKYLIB
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "bazel_skylib",
+    sha256 = skylib_sha,
+    urls = [
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/{0}/bazel-skylib-{0}.tar.gz".format(skylib_version),
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/{0}/bazel-skylib-{0}.tar.gz".format(skylib_version),
+    ],
+)
+
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
+bazel_skylib_workspace()
+
+# BUILDIFIER
 http_archive(
     name = "io_bazel_rules_go",
     sha256 = rules_go_sha,

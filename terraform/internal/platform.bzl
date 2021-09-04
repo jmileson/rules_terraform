@@ -16,11 +16,11 @@ BAZEL_ARCH_CONSTRAINTS = {
     "arm64": "@platforms//cpu:aarch64",
 }
 
-UNAME_ARCH {
+UNAME_ARCH = {
+    "aarch64": "arm64",
+    "arm": "arm",
     "x86_32": "386",
     "x86_64": "amd64",
-    "arm": "arm",
-    "aarch64": "arm64",
 }
 
 OS_ARCH = (

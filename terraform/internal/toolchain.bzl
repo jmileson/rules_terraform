@@ -3,8 +3,8 @@ Exposes terraform_register_toolchains to support
 different Terraform toolchains per platform.
 """
 
-load("//terraform/internal:terraform_toolchain.bzl", "terraform_toolchain")
 load("//terraform/internal:platform.bzl", "OS_ARCH", "UNAME_ARCH")
+load("//terraform/internal:terraform_toolchain.bzl", "terraform_toolchain")
 
 bin_url_tpl = "https://releases.hashicorp.com/terraform/{version}/terraform_{version}_{os}_{arch}.zip"
 checksums_url_tpl = "https://releases.hashicorp.com/terraform/{version}/terraform_{version}_SHA256SUMS"
@@ -20,7 +20,7 @@ def _detect_os_arch(ctx):
         if plat not in arches:
             arches[plat] = []
         arches[plat].append(arch)
-        
+
     if ctx.os.name in ("linux", "darwin", "openbsd", "solaris", "freebsd"):
         os = ctx.os.name
         res = ctx.execute(["uname", "-m"])
@@ -42,7 +42,7 @@ def _detect_os_arch(ctx):
 
             if proc not in ("x86", "x64"):
                 fail("unsupported processor architecture for {}".format(os))
-            arch = "amd64" if proc = "x64" else "386"
+            arch = "amd64" if proc == "x64" else "386"
     else:
         fail("Unsupported operating system: {}".format(ctx.os.name))
 
@@ -95,7 +95,6 @@ def _checksum(ctx, version, os, arch):
 
     return bin_checksum
 
-
 def _download_terraform(ctx, version, os, arch, sha256):
     """Download a release of Terraform
 
@@ -147,9 +146,9 @@ _terraform_download = repository_rule(
 def declare_terraform_toolchains(version):
     """Registers terraform_toolchain and toolchain targets for each platform.
 
-    Used exclusively in the BUILD.bazel file generated when calling 
+    Used exclusively in the BUILD.bazel file generated when calling
     terraform_register_toolchains. The set of toolchains is known
-    ahead of time, but a template is used to keep values from 
+    ahead of time, but a template is used to keep values from
     //terraform/internal:platform.bzl in sync between the rules defined
     here and the BUILD file required to make this set of rules available to
     other workspaces.

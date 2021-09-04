@@ -1,4 +1,4 @@
-load("@io_bazel_rules_terraform//terraform:terraform.bzl", "declare_terraform_toolchains")
+load("@io_bazel_rules_terraform//terraform:deps.bzl", "declare_terraform_toolchains")
 
 package(default_visibility = ["//visibility:public"])
 

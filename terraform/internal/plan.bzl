@@ -1,6 +1,8 @@
-""""""
+"""
+Exposes terraform_plan to support `terraform plan` execution.
+"""
 
-load("//terraform:provider.bzl", "TerraformPlanInfo")
+load("//terraform/internal:provider.bzl", "TerraformPlanInfo")
 
 def _terraform_plan_impl(ctx):
     deps = depset(ctx.files.srcs)
@@ -8,7 +10,7 @@ def _terraform_plan_impl(ctx):
     # TODO compatibility with windows
     exe = ctx.actions.declare_file(ctx.label.name + ".sh")
     ctx.actions.expand_template(
-        template = Label("//terraform:terraform_plan.sh.tpl"),
+        template = Label("//terraform/internal:terraform_plan.sh.tpl"),
         output = exe,
         substitutions = {
             "%{args}": deps.to_list()[0].dirname,

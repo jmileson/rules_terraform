@@ -3,7 +3,7 @@ Implementation of the terraform_toolchain rule
 for use when registering toolchains.
 """
 
-load("//terraform/internal:provider.bzl", "TerraformInfo")
+load("//terraform/internal:providers.bzl", "TerraformInfo")
 
 def _terraform_toolchain_impl(ctx):
     toolchain_info = platform_common.ToolchainInfo(

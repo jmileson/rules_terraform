@@ -1,4 +1,4 @@
-workspace(name = "io_bazel_rules_terraform")
+workspace(name = "rules_terraform")
 
 # Variables
 # SKYLIB

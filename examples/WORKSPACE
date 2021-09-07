@@ -1,0 +1,11 @@
+workspace(name = "rules_terraform_examples")
+
+# rules_terraform
+local_repository(
+    name = "rules_terraform",
+    path = "..",
+)
+
+load("@rules_terraform//terraform:deps.bzl", "terraform_register_toolchains")
+
+terraform_register_toolchains("1.0.6")

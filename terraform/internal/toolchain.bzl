@@ -3,7 +3,7 @@ Exposes terraform_register_toolchains to support
 different Terraform toolchains per platform.
 """
 
-load("//terraform/internal:platform.bzl", "OS_ARCH", "UNAME_ARCH")
+load("//terraform/internal:platform.bzl", "OS_ARCH", "PLATFORMS", "UNAME_ARCH", "generate_toolchain_names", _toolchain_name = "toolchain_name")
 load("//terraform/internal:terraform_toolchain.bzl", "terraform_toolchain")
 
 bin_url_tpl = "https://releases.hashicorp.com/terraform/{version}/terraform_{version}_{os}_{arch}.zip"
@@ -16,7 +16,7 @@ def _detect_os_arch(ctx):
     Returns (os, arch)
     """
     arches = {}
-    for plat, arch in OS_ARCH.items():
+    for plat, arch in OS_ARCH:
         if plat not in arches:
             arches[plat] = []
         arches[plat].append(arch)
@@ -27,7 +27,7 @@ def _detect_os_arch(ctx):
         if res.return_code == 0:
             uname = res.stdout.strip()
             arch = UNAME_ARCH.get(uname)
-            if uname not in arches[os]:
+            if arch not in arches[os]:
                 fail("Unable to determine processor architecture for {}".format(os))
         else:
             fail("Unable to determine processor architecture for {}".format(os))
@@ -62,9 +62,12 @@ def _parse_checksums(data):
         if not line:
             continue
 
-        checksum, filename = line.split()
-        name, _ = filename.split(".")
-        _, _, os, arch = name.split("_")
+        checksum, filename = line.split(" ", 1)
+        checksum = checksum.strip()
+        name, _ = filename.rsplit(".", 1)
+        _, _, os, arch = name.strip().split("_")
+        os = os.strip()
+        arch = arch.strip()
 
         checksums[(os, arch)] = checksum
 
@@ -79,7 +82,7 @@ def _checksum(ctx, version, os, arch):
 
     Returns checksum
     """
-    url = ctx.attr._checksums_url_tpl.format(version = version)
+    url = checksums_url_tpl.format(version = version)
     output = "terraform_{version}_SHA256SUMS".format(version = version)
     ctx.download(
         url = [url],
@@ -104,7 +107,7 @@ def _download_terraform(ctx, version, os, arch, sha256):
     sha256: the checksum of the downloaded file
 
     """
-    url = ctx.attr._bin_url_tpl.format(version = version, os = os, arch = arch)
+    url = bin_url_tpl.format(version = version, os = os, arch = arch)
     ctx.download_and_extract(
         url = url,
         sha256 = sha256,
@@ -112,17 +115,15 @@ def _download_terraform(ctx, version, os, arch, sha256):
         output = "terraform",
     )
 
-def _terraform_download_impl(ctx):
+def _terraform_download(ctx, os, arch, version):
     """Download a version of Terraform specific an OS and Architecture."""
-    if not ctx.attr.os:
-        fail("arch set, but os not set")
-    if not ctx.attr.arch:
+    if not os and not arch:
+        fail("arch and os not set.")
+    if not os:
+        fail("arch not set, but os not set")
+    if not arch:
         fail("os set, but arch not set")
 
-    os = ctx.attr.os
-    arch = ctx.attr.arch
-
-    version = ctx.attr.version
     if not version:
         fail("version not set")
 
@@ -131,17 +132,6 @@ def _terraform_download_impl(ctx):
 
     ctx.report_progress("Downloading Terraform toolchain")
     _download_terraform(ctx, version, os, arch, sha256)
-
-_terraform_download = repository_rule(
-    implementation = _terraform_download_impl,
-    attrs = {
-        "arch": attr.string(),
-        "os": attr.string(),
-        "version": attr.string(),
-        "_bin_url_tpl": attr.string(default = bin_url_tpl),
-        "_checksums_url_tpl": attr.string(default = checksums_url_tpl),
-    },
-)
 
 def declare_terraform_toolchains(version):
     """Registers terraform_toolchain and toolchain targets for each platform.
@@ -153,8 +143,8 @@ def declare_terraform_toolchains(version):
     here and the BUILD file required to make this set of rules available to
     other workspaces.
     """
-    for plat in PLATFORM:
-        toolchain_name = "terraform_{os}_{arch}".format(os = tc.os, arch = plat.arch)
+    for plat in PLATFORMS:
+        toolchain_name = _toolchain_name(plat)
         impl_name = "{}_impl".format(toolchain_name)
 
         terraform_toolchain(
@@ -167,21 +157,26 @@ def declare_terraform_toolchains(version):
             name = toolchain_name,
             exec_compatible_with = plat.constraints,
             target_compatible_with = plat.constraints,
-            toolchain = name,
-            toolchain_type = "@io_bazel_rules_terraform//:toolchain_type",
+            toolchain = ":{}".format(impl_name),
+            toolchain_type = "@rules_terraform//terraform:toolchain",
         )
+
+def _register_toolchains():
+    labels = [
+        "@rules_terraform//:{}".format(name)
+        for name in generate_toolchain_names()
+    ]
+    native.register_toolchains(*labels)
 
 def _terraform_register_toolchains_impl(ctx):
     """Register Terraform toolchains for a specific version."""
     os, arch = _detect_os_arch(ctx)
     version = ctx.attr.version
 
-    _terraform_build_file(ctx, os, version)
-
     ctx.file("ROOT")
     ctx.template(
         "BUILD.bazel",
-        Label("@io_bazel_rules_terraform//terraform/internal:BUILD.terraform.bazel"),
+        Label("@rules_terraform//terraform/internal:BUILD.terraform.bazel"),
         executable = False,
         substitutions = {
             "{exe}": ".exe" if os == "windows" else "",
@@ -190,7 +185,7 @@ def _terraform_register_toolchains_impl(ctx):
         },
     )
 
-    _terraform_download(os, arch, version)
+    _terraform_download(ctx, os, arch, version)
 
 _terraform_register_toolchains = repository_rule(
     _terraform_register_toolchains_impl,
@@ -205,3 +200,4 @@ def terraform_register_toolchains(version):
         name = "register_terraform_toolchains",
         version = version,
     )
+    _register_toolchains()

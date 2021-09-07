@@ -6,6 +6,7 @@ BAZEL_OS_CONSTRAINTS = {
     "freebsd": "@platforms//os:freebsd",
     "linux": "@platforms//os:linux",
     "openbsd": "@platforms//os:openbsd",
+    "solaris": "@platforms//os:solaris",
     "windows": "@platforms//os:windows",
 }
 
@@ -26,9 +27,9 @@ UNAME_ARCH = {
 OS_ARCH = (
     ("darwin", "amd64"),
     ("darwin", "arm64"),
-    ("freebsd", "386"),
-    ("freebsd", "amd64"),
-    ("freebsd", "arm"),
+    # ("freebsd", "386"),
+    # ("freebsd", "amd64"),
+    # ("freebsd", "arm"),
     ("linux", "amd64"),
     ("linux", "386"),
     ("linux", "arm"),
@@ -48,10 +49,10 @@ def _constraints(os, arch):
 
 def _generate_platforms():
     platforms = []
-    for os, arch in os_ARCH.items():
+    for os, arch in OS_ARCH:
         name = "{os}_{arch}".format(os = os, arch = arch)
         constraints = _constraints(os, arch)
-        toolchains.append(struct(
+        platforms.append(struct(
             name = name,
             arch = arch,
             os = os,
@@ -60,3 +61,11 @@ def _generate_platforms():
     return platforms
 
 PLATFORMS = _generate_platforms()
+
+def toolchain_name(plat):
+    """Make a toolchain name from a platform."""
+    return "terraform_{os}_{arch}".format(os = plat.os, arch = plat.arch)
+
+def generate_toolchain_names():
+    """Generate a full list of toolchain names."""
+    return [toolchain_name(plat) for plat in PLATFORMS]

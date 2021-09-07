@@ -1,4 +1,4 @@
-load("@io_bazel_rules_terraform//terraform:deps.bzl", "declare_terraform_toolchains")
+load("@rules_terraform//terraform/internal:toolchain.bzl", "declare_terraform_toolchains")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -11,3 +11,5 @@ filegroup(
     srcs = ["terraform/terraform{exe}"],
     visibility = ["//visibility:public"],
 )
+
+exports_files(["terraform/terraform{exe}"])

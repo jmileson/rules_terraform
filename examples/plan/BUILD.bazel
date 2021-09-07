@@ -1,0 +1,8 @@
+load("@rules_terraform//terraform:deps.bzl", "terraform_plan")
+
+SRCS = glob(["**/*.tf"])
+
+terraform_plan(
+    name = "plan",
+    srcs = SRCS,
+)
